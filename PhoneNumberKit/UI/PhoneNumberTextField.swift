@@ -14,6 +14,13 @@ import UIKit
 /// Custom text field that formats phone numbers
 open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     public let phoneNumberKit: PhoneNumberKit
+    public var phoneFormatEnabled: Bool = false {
+        didSet {
+            if phoneFormatEnabled {
+                setup()
+            }
+        }
+    }
 
     public lazy var flagButton = UIButton()
 
@@ -263,6 +270,9 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     }
 
     func setup() {
+        guard phoneFormatEnabled == true else {
+            return
+        }
         self.autocorrectionType = .no
         self.keyboardType = .phonePad
         super.delegate = self
