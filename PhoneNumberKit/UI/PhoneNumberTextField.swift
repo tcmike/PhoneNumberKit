@@ -226,6 +226,7 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
      */
     public convenience init(withPhoneNumberKit phoneNumberKit: PhoneNumberKit) {
         self.init(frame: .zero, phoneNumberKit: phoneNumberKit)
+        super.delegate = self
         self.setup()
     }
 
@@ -240,6 +241,7 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     public init(frame: CGRect, phoneNumberKit: PhoneNumberKit) {
         self.phoneNumberKit = phoneNumberKit
         super.init(frame: frame)
+        super.delegate = self
         self.setup()
     }
 
@@ -253,6 +255,7 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     public override init(frame: CGRect) {
         self.phoneNumberKit = PhoneNumberKit()
         super.init(frame: frame)
+        super.delegate = self
         self.setup()
     }
 
@@ -266,6 +269,7 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     public required init(coder aDecoder: NSCoder) {
         self.phoneNumberKit = PhoneNumberKit()
         super.init(coder: aDecoder)!
+        super.delegate = self
         self.setup()
     }
 
@@ -275,7 +279,6 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
         }
         self.autocorrectionType = .no
         self.keyboardType = .phonePad
-        super.delegate = self
     }
 
     func internationalPrefix(for countryCode: String) -> String? {
@@ -463,8 +466,10 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     }
 
     open func textFieldDidBeginEditing(_ textField: UITextField) {
-        if self.withExamplePlaceholder, self.withPrefix, let countryCode = phoneNumberKit.countryCode(for: currentRegion)?.description, (text ?? "").isEmpty {
-            text = "+" + countryCode + " "
+        if phoneFormatEnabled {
+            if self.withExamplePlaceholder, self.withPrefix, let countryCode = phoneNumberKit.countryCode(for: currentRegion)?.description, (text ?? "").isEmpty {
+                text = "+" + countryCode + " "
+            }
         }
         self._delegate?.textFieldDidBeginEditing?(textField)
     }
@@ -474,13 +479,17 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     }
 
     open func textFieldDidEndEditing(_ textField: UITextField) {
-        updateTextFieldDidEndEditing(textField)
+        if phoneFormatEnabled {
+            updateTextFieldDidEndEditing(textField)
+        }
         self._delegate?.textFieldDidEndEditing?(textField)
     }
 
     @available (iOS 10.0, tvOS 10.0, *)
     open func textFieldDidEndEditing(_ textField: UITextField, reason: UITextField.DidEndEditingReason) {
-        updateTextFieldDidEndEditing(textField)
+        if phoneFormatEnabled {
+            updateTextFieldDidEndEditing(textField)
+        }
         if let _delegate = _delegate {
             if (_delegate.responds(to: #selector(textFieldDidEndEditing(_:reason:)))) {
                 _delegate.textFieldDidEndEditing?(textField, reason: reason)
