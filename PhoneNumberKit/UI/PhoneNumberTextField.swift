@@ -407,6 +407,11 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     }
 
     open func textField(_ textField: UITextField, shouldChangeCharactersIn range: NSRange, replacementString string: String) -> Bool {
+        
+        if !phoneFormatEnabled {
+            return self._delegate?.textField?(textField, shouldChangeCharactersIn: range, replacementString: string) ?? true
+        }
+        
         // This allows for the case when a user autocompletes a phone number:
         if range == NSRange(location: 0, length: 0) && string.isBlank {
             return true
