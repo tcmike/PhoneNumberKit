@@ -23,7 +23,7 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
     }
 
     public lazy var flagButton = UIButton()
-
+    public var appendOnEdit = false
     /// Override setText so number will be automatically formatted when setting text by code
     open override var text: String? {
         set {
@@ -311,14 +311,16 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
         let ph = NSMutableAttributedString(string: example, attributes: [.font: font])
 
         #if compiler(>=5.1)
-        if #available(iOS 13.0, *), self.withPrefix {
-            // because the textfield will automatically handle insert & removal of the international prefix we make the
-            // prefix darker to indicate non default behaviour to users, this behaviour currently only happens on iOS 13
-            // and above just because that is where we have access to label colors
-            let firstSpaceIndex = example.firstIndex(where: { $0 == " " }) ?? example.startIndex
+        if appendOnEdit {
+            if #available(iOS 13.0, *), self.withPrefix {
+                // because the textfield will automatically handle insert & removal of the international prefix we make the
+                // prefix darker to indicate non default behaviour to users, this behaviour currently only happens on iOS 13
+                // and above just because that is where we have access to label colors
+                let firstSpaceIndex = example.firstIndex(where: { $0 == " " }) ?? example.startIndex
 
-            ph.addAttribute(.foregroundColor, value: self.countryCodePlaceholderColor, range: NSRange(..<firstSpaceIndex, in: example))
-            ph.addAttribute(.foregroundColor, value: self.numberPlaceholderColor, range: NSRange(firstSpaceIndex..., in: example))
+                ph.addAttribute(.foregroundColor, value: self.countryCodePlaceholderColor, range: NSRange(..<firstSpaceIndex, in: example))
+                ph.addAttribute(.foregroundColor, value: self.numberPlaceholderColor, range: NSRange(firstSpaceIndex..., in: example))
+            }
         }
         #endif
 
@@ -472,8 +474,10 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
 
     open func textFieldDidBeginEditing(_ textField: UITextField) {
         if phoneFormatEnabled {
-            if self.withExamplePlaceholder, self.withPrefix, let countryCode = phoneNumberKit.countryCode(for: currentRegion)?.description, (text ?? "").isEmpty {
-                text = "+" + countryCode + " "
+            if appendOnEdit {
+                if self.withExamplePlaceholder, self.withPrefix, let countryCode = phoneNumberKit.countryCode(for: currentRegion)?.description, (text ?? "").isEmpty {
+                    text = "+" + countryCode + " "
+                }
             }
         }
         self._delegate?.textFieldDidBeginEditing?(textField)
