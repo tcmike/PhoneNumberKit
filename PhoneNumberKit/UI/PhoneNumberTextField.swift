@@ -139,7 +139,11 @@ open class PhoneNumberTextField: UITextField, UITextFieldDelegate {
         set { _withDefaultPickerUI = newValue }
     }
 
-    public var isPartialFormatterEnabled = true
+    private var _isPartialFormatterEnabled = true
+    public var isPartialFormatterEnabled: Bool {
+        set { _isPartialFormatterEnabled = newValue }
+        get { return _isPartialFormatterEnabled && phoneFormatEnabled }
+    }
 
     public var maxDigits: Int? {
         didSet {
