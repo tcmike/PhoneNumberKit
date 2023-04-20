@@ -303,7 +303,7 @@ public final class PhoneNumberKit: NSObject {
             carrier = networkInfo.subscriberCellularProvider
         }
 
-        if let isoCountryCode = carrier?.isoCountryCode {
+        if let isoCountryCode = carrier?.isoCountryCode, isoCountryCode != "--" {
             return isoCountryCode.uppercased()
         }
 #endif
